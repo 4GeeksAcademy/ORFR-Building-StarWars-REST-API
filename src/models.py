@@ -56,3 +56,4 @@ class Planets(db.Model):
             "name": self.name,
             "url": self.url
         }
+
