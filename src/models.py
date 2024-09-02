@@ -61,9 +61,9 @@ class Planets(db.Model):
 class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'))
-    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicles.id'))
-    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=True)
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicles.id'), nullable=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'),nullable=True)
 
 
     # client = db.relationship('User', backref='favorites')
@@ -73,5 +73,8 @@ class Favorites(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id
+            "id": self.id,
+            "favorite_character": self.character.name,
+            "favorite_planet": self.planet.name,
+            "favorite_vehicle": self.vehicle.name
         }

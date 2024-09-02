@@ -88,6 +88,24 @@ def get_favorites_by_user(user_id):
     return jsonify(response_body), 200
 
 
+@app.route('/users/favorites/characters/<int:character_id>', methods=['POST'])
+def add_character(character_id):
+
+    body = request.get_json(force=True)
+
+    new  = Favorites(
+        user_id= body["user_id"],
+        character_id= character_id
+    )
+
+    db.session.add(new)
+    db.session.commit()
+
+
+    return jsonify(new.serialize()), 200
+
+
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
