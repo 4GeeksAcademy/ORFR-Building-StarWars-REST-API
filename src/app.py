@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Characters, Vehicles, Planets
+from models import db, User, Characters, Vehicles, Planets, Favorites
 #from models import Person
 
 app = Flask(__name__)
@@ -36,11 +36,14 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@app.route('/users', methods=['GET'])
+def get_all_users():
 
+    results = User.query.all()
+    results_map = list(map(lambda item: item.serialize(), results ))
     response_body = {
-        "msg": "Hello, this is your GET /user response "
+        "msg": "ok",
+        "results": results_map
     }
 
     return jsonify(response_body), 200
@@ -54,6 +57,32 @@ def get_all_characters():
     response_body = {
         "msg": "ok",
         "results": results_map
+    }
+
+    return jsonify(response_body), 200
+
+
+
+@app.route('/characters/<int:character_id>', methods=['GET'])
+def get_character(character_id):
+
+    result = Characters.query.filter_by(id=character_id).first()
+    response_body = {
+        "msg": "ok",
+        "result": result.serialize()
+    }
+
+    return jsonify(response_body), 200
+
+
+@app.route('/users/favorites/<int:user_id>', methods=['GET'])
+def get_favorites_by_user(user_id):
+
+    result = Favorites.query.filter_by(user_id=user_id).all()
+    result_map = list(map(lambda item: item.serialize(), result ))
+    response_body = {
+        "msg": "ok",
+        "result": result_map
     }
 
     return jsonify(response_body), 200
