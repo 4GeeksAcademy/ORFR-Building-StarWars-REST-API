@@ -39,6 +39,7 @@ def sitemap():
 @app.route('/users', methods=['GET'])
 def get_all_users():
 
+
     results = User.query.all()
     results_map = list(map(lambda item: item.serialize(), results ))
     response_body = {
@@ -53,7 +54,9 @@ def get_all_users():
 def get_all_characters():
 
     results = Characters.query.all()
+    # print(results)
     results_map = list(map(lambda item: item.serialize(), results ))
+    # print(results_map)
     response_body = {
         "msg": "ok",
         "results": results_map
@@ -66,26 +69,39 @@ def get_all_characters():
 @app.route('/characters/<int:character_id>', methods=['GET'])
 def get_character(character_id):
 
-    result = Characters.query.filter_by(id=character_id).first()
-    response_body = {
-        "msg": "ok",
-        "result": result.serialize()
-    }
+    try:       
+        result = Characters.query.filter_by(id=character_id).first()
+        response_body = {
+            "msg": "ok",
+            "result": result.serialize()
+        }
 
-    return jsonify(response_body), 200
+        return jsonify(response_body), 200
 
+    except Exception as e:
+        return jsonify({"error": "error en servidor"+str(e)}), 500
+    
 
 @app.route('/users/favorites/<int:user_id>', methods=['GET'])
 def get_favorites_by_user(user_id):
+    try: 
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "user not exist"}), 404
 
-    result = Favorites.query.filter_by(user_id=user_id).all()
-    result_map = list(map(lambda item: item.serialize(), result ))
-    response_body = {
-        "msg": "ok",
-        "result": result_map
-    }
+        result = Favorites.query.filter_by(user_id=user_id).all()
+        print(list(result))
+        result_map = list(map(lambda item: item.serialize(), result ))
+        print(result_map)
+        response_body = {
+            "msg": "ok",
+            "result": result_map
+        }
 
-    return jsonify(response_body), 200
+        return jsonify(response_body), 200
+    
+    except Exception as e:
+        return jsonify({"error": "error en servidor"+str(e)}), 500
 
 
 @app.route('/users/favorites/characters/<int:character_id>', methods=['POST'])
@@ -102,8 +118,90 @@ def add_character(character_id):
     db.session.commit()
 
 
+    return jsonify({"done":"item added"}), 200
+
+
+@app.route('/users/favorites/vehicles/<int:vehicle_id>', methods=['POST'])
+def add_vehicle(vehicle_id):
+
+    body = request.get_json(force=True)
+
+    new  = Favorites(
+        user_id= body["user_id"],
+        vehicle_id= vehicle_id
+    )
+
+    db.session.add(new)
+    db.session.commit()
+
+
     return jsonify(new.serialize()), 200
 
+
+
+@app.route('/users/favorites/planets/<int:planet_id>', methods=['POST'])
+def add_planet(planet_id):
+
+    body = request.get_json(force=True)
+
+    new  = Favorites(
+        user_id= body["user_id"],
+        planet_id= planet_id
+    )
+
+    db.session.add(new)
+    db.session.commit()
+
+
+    return jsonify(new.serialize()), 200
+
+
+
+@app.route('/users/favorites/characters/<int:character_id>', methods=['DELETE'])
+def remove_character(character_id):
+
+    body = request.get_json()
+    user_id = body["user_id"]
+
+    delete_character = Favorites.query.filter_by(user_id=user_id, character_id=character_id).first()
+
+    db.session.delete(delete_character)
+    db.session.commit()
+
+
+    return jsonify({"done":"item removed"}), 200
+
+
+
+@app.route('/users/favorites/vehicles/<int:vehicle_id>', methods=['DELETE'])
+def remove_vehicle(vehicle_id):
+
+    body = request.get_json()
+    user_id = body["user_id"]
+
+    delete_vehicle = Favorites.query.filter_by(user_id=user_id, vehicle_id=vehicle_id).first()
+
+    db.session.delete(delete_vehicle)
+    db.session.commit()
+
+
+    return jsonify({"done":"item removed"}), 200
+
+
+
+@app.route('/users/favorites/planets/<int:planet_id>', methods=['DELETE'])
+def remove_planet(planet_id):
+
+    body = request.get_json()
+    user_id = body["user_id"]
+
+    delete_planet = Favorites.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+
+    db.session.delete(delete_planet)
+    db.session.commit()
+
+
+    return jsonify({"done":"item removed"}), 200
 
 
 # this only runs if `$ python src/app.py` is executed
