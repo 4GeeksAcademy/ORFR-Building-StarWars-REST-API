@@ -123,6 +123,11 @@ def get_favorites_by_user(user_id):
 def add_character(character_id):
     try:
         character = Characters.query.get(character_id)
+        verif_favorite = Favorites.query.filter_by(character_id=character.id).first()
+        # print(verif_favorite)
+        if verif_favorite:
+            return jsonify({"error": "character already exist in Favorites list"}), 404
+
         if not character:
             return jsonify({"error": "character not exist"}), 404
 
@@ -150,6 +155,12 @@ def add_character(character_id):
 def add_vehicle(vehicle_id):
     try:
         vehicle = Vehicles.query.get(vehicle_id)
+        verif_favorite = Favorites.query.filter_by(vehicle_id=vehicle.id).first()
+        # print(verif_favorite)
+        if verif_favorite:
+            return jsonify({"error": "vehicle already exist in Favorites list"}), 404
+
+
         if not vehicle:
             return jsonify({"error": "vehicle not exist"}), 404
     
@@ -179,6 +190,13 @@ def add_planet(planet_id):
 
     try:
         planet = Planets.query.get(planet_id)
+
+        verif_favorite = Favorites.query.filter_by(planet_id=planet.id).first()
+        # print(verif_favorite)
+        if verif_favorite:
+            return jsonify({"error": "character already exist in Favorites list"}), 404
+
+
         if not planet:
             return jsonify({"error": "planet not exist"}), 404
         
